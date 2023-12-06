@@ -94,5 +94,74 @@ namespace Lab_1___SQL
                 }
             }
         }
+
+        internal static void ShowStudentsByClass()
+        {
+            string connectionString = @"Data Source=(localdb)\.;Initial Catalog=SchoolDB;Integrated Security=True";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                Console.Clear();
+                Console.WriteLine("\t--- CLASS LIST ---\n");
+                connection.Open();
+                using (SqlCommand command = new SqlCommand($"SELECT * FROM Classes", connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string className = reader["ClassName"].ToString();
+                            int classId = Convert.ToInt32(reader["ClassID"]);
+
+                            Console.WriteLine($"Class ID: {classId}, Class name: {className}");
+                        }
+                        
+                    }
+                }
+                Console.Write("\nEnter Class ID to view all students: ");
+                int input = int.Parse(Console.ReadLine());
+
+                string queryString = @"
+                                     SELECT  
+                                     Students.StudentID, Students.FirstName, Students.LastName, Classes.ClassName
+                                     FROM Students
+                                     JOIN StudentsClasses ON Students.StudentID = StudentsClasses.StudentID_FK
+                                     JOIN Classes ON StudentsClasses.ClassID_FK = Classes.ClassID
+                                     WHERE StudentsClasses.ClassID_FK = @ClassID
+                                     ORDER BY Students.FirstName";
+
+                using (SqlCommand command = new SqlCommand(queryString, connection))
+                {
+                    command.Parameters.AddWithValue("@ClassID", input);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        Console.Clear();
+
+                        // Checks if there are students in the chosen class, then displays the class name first before displaying the student list.
+                        if (reader.Read()) 
+                        {
+                            string className = reader["ClassName"].ToString();
+                            Console.WriteLine($"CLASS: {className}\n");
+
+                            do
+                            {
+                                string firstName = reader["FirstName"].ToString();
+                                string lastName = reader["LastName"].ToString();
+                                int studentId = Convert.ToInt32(reader["StudentID"]);
+
+                                Console.WriteLine($"Student ID: {studentId}, Name: {firstName} {lastName}");
+                            } while (reader.Read());
+                        }
+                        else
+                        {
+                            Console.WriteLine("No students found for the specified class.");
+                        }
+
+                        Console.WriteLine("\nPress ENTER to return to the menu");
+                        Console.ReadLine();
+                    }
+                }
+            }
+        }
     }
 }
