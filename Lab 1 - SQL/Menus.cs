@@ -48,6 +48,9 @@ namespace Lab_1___SQL
                 case "6":
                     return true;
                 case "7":
+
+                    Console.Clear();
+                    UserFunctions.AddStudent();
                     return true;
                 case "8":
                     Console.Clear();
