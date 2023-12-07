@@ -56,7 +56,7 @@ namespace Lab_1___SQL
                             string lastName = reader["LastName"].ToString();
                             int studentId = Convert.ToInt32(reader["StudentID"]);
 
-                            Console.WriteLine($"Student ID: {studentId}, Name: {firstName} {lastName}");
+                            Console.WriteLine($"Student ID: {studentId}  Name: {firstName} {lastName}");
                         }
                         Console.WriteLine("\nPress ENTER to return to menu");
                         Console.ReadLine();
@@ -95,6 +95,7 @@ namespace Lab_1___SQL
             }
         }
 
+        // Lists all classes and lets the user pick one, then lists all the students in that class
         internal static void ShowStudentsByClass()
         {
             string connectionString = @"Data Source=(localdb)\.;Initial Catalog=SchoolDB;Integrated Security=True";
@@ -149,7 +150,7 @@ namespace Lab_1___SQL
                                 string lastName = reader["LastName"].ToString();
                                 int studentId = Convert.ToInt32(reader["StudentID"]);
 
-                                Console.WriteLine($"Student ID: {studentId}, Name: {firstName} {lastName}");
+                                Console.WriteLine($"Student ID: {studentId}  Name: {firstName} {lastName}");
                             } while (reader.Read());
                         }
                         else
@@ -158,6 +159,73 @@ namespace Lab_1___SQL
                         }
 
                         Console.WriteLine("\nPress ENTER to return to the menu");
+                        Console.ReadLine();
+                    }
+                }
+            }
+        }
+
+        // Adds new staff member to the database.
+        internal static void AddStaff()
+        {
+            Console.Write("Enter staff members first name: ");
+            string firstName = Console.ReadLine();
+
+            Console.Write("Enter staff members last name: ");
+            string lastName = Console.ReadLine();
+
+            Console.Write("What profession will the staff member have? ");
+            string profession = Console.ReadLine();
+
+            string connectionString = @"Data Source=(localdb)\.;Initial Catalog=SchoolDB;Integrated Security=True";
+
+            // Query is parameterized to prevent query injection.
+            string insertQuery = $"INSERT INTO Staff (firstName, lastName, profession) VALUES (@FirstName, @LastName, @Profession)";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand(insertQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@FirstName", firstName);
+                    command.Parameters.AddWithValue("@LastName", lastName);
+                    command.Parameters.AddWithValue("@Profession", profession);
+
+                    int numRowsAffected = command.ExecuteNonQuery();
+
+                    Console.WriteLine($"New staff member added! Rows affected: {numRowsAffected}");
+                    Thread.Sleep(2000);
+                }
+            }
+        }
+
+        // Displays a list of all staff members.
+        internal static void ShowAllStaff()
+        {          
+
+            string queryString = $"SELECT * FROM Staff ORDER BY LastName";
+
+            string connectionString = @"Data Source=(localdb)\.;Initial Catalog=SchoolDB;Integrated Security=True";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                Console.Clear();
+                Console.WriteLine("\t--- STAFF LIST ---\n");
+                connection.Open();
+                using (SqlCommand command = new SqlCommand($"{queryString}", connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string firstName = reader["FirstName"].ToString();
+                            string lastName = reader["LastName"].ToString();
+                            string profession = reader["Profession"].ToString();
+                            int staffId = Convert.ToInt32(reader["StaffID"]);
+
+                            Console.WriteLine($"Staff ID: {staffId}  Name: {firstName} {lastName} | Profession: {profession}");
+                        }
+                        Console.WriteLine("\nPress ENTER to return to menu");
                         Console.ReadLine();
                     }
                 }

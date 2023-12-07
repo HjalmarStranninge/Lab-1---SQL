@@ -14,8 +14,7 @@ namespace Lab_1___SQL
         {
             Console.Clear();
             Console.WriteLine("\tWelcome to SchoolNET");
-            Console.WriteLine("     What would you like to do?");
-            Console.WriteLine();
+            Console.WriteLine("     What would you like to do?\n");
 
             Console.WriteLine($"[1]: List all students");
             Console.WriteLine($"[2]: List all students by specific class");
@@ -42,19 +41,37 @@ namespace Lab_1___SQL
                     Console.Clear();
                     UserFunctions.ShowStudentsByClass();
                     return true;
+
                 case "3":
+
+                    Console.Clear();
+                    UserFunctions.AddStaff();
                     return true;
+
                 case "4":
+
+                    Console.Clear();
+                    UserFunctions.ShowAllStaff();
                     return true;
+
                 case "5":
+
+                    Console.Clear();
+                    // Show grades set last month
                     return true;
+
                 case "6":
+
+                    Console.Clear();
+                    // Show average grade per course
                     return true;
+
                 case "7":
 
                     Console.Clear();
                     UserFunctions.AddStudent();
                     return true;
+
                 case "8":
                     Console.Clear();
                     Console.WriteLine("Exiting application...");
