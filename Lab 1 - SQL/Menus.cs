@@ -57,13 +57,13 @@ namespace Lab_1___SQL
                 case "5":
 
                     Console.Clear();
-                    // Show grades set last month
+                    UserFunctions.ShowGradesSetLastMonth();
                     return true;
 
                 case "6":
 
                     Console.Clear();
-                    // Show average grade per course
+                    UserFunctions.ShowAverageGrade();
                     return true;
 
                 case "7":

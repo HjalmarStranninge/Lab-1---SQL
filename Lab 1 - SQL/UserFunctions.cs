@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Lab_1___SQL
@@ -35,7 +36,7 @@ namespace Lab_1___SQL
 
             // The users choices are injected into the SQL-query string which will be used to fetch information from the database.
             string orderByColumn = (firstChoice == "1") ? "FirstName" : "LastName";
-            string sortOrder = (secondChoice == "1") ? "DESC" : "ASC";                  // Parameterize this later for injection prevention.
+            string sortOrder = (secondChoice == "1") ? "DESC" : "ASC";   
 
             string queryString = $"SELECT * FROM Students ORDER BY {orderByColumn} {sortOrder}";
 
@@ -224,6 +225,120 @@ namespace Lab_1___SQL
                             int staffId = Convert.ToInt32(reader["StaffID"]);
 
                             Console.WriteLine($"Staff ID: {staffId}  Name: {firstName} {lastName} | Profession: {profession}");
+                        }
+                        Console.WriteLine("\nPress ENTER to return to menu");
+                        Console.ReadLine();
+                    }
+                }
+            }
+        }
+
+        internal static void ShowAverageGrade()
+        {
+            string queryString = $"SELECT CourseName, CourseID FROM Courses";
+
+            string connectionString = @"Data Source=(localdb)\.;Initial Catalog=SchoolDB;Integrated Security=True";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                Console.Clear();
+                Console.WriteLine("\t--- COURSE LIST ---\n");
+                connection.Open();
+                using (SqlCommand command = new SqlCommand($"{queryString}", connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string courseName = reader["CourseName"].ToString();
+                            int courseID = Convert.ToInt32(reader["CourseID"]);
+
+                            Console.WriteLine($"Course ID: {courseID}  Course: {courseName} ");
+                        }
+                        Console.Write("\nEnter course ID to view average grade: ");                        
+                    }
+                }
+                string input = Console.ReadLine();
+                Console.Clear();
+
+                queryString = @"
+                            SELECT  
+                            Courses.CourseName,
+                            AVG(Grades.Grade) AS AverageGrade
+                            FROM Grades
+                            JOIN Courses ON Courses.CourseID = Grades.CourseID_FK
+                            WHERE Grades.CourseID_FK = @CourseID
+                            GROUP BY Courses.CourseName";
+
+                using (SqlCommand command = new SqlCommand(queryString, connection))
+                {
+                    command.Parameters.AddWithValue("@CourseID", input);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        Console.Clear();
+
+                        // Checks if there are grades set in the chosen course
+                        if (reader.Read())
+                        {
+                            do
+                            {
+                                string courseName = reader["CourseName"].ToString();
+                                string averageGrade = reader["AverageGrade"].ToString();
+
+                                Console.WriteLine($"Course: {courseName}  Grade average: {averageGrade}");
+                            } while (reader.Read());
+                        }
+                        else
+                        {
+                            Console.WriteLine("No grades have been set in the specified course.");
+                        }
+
+                        Console.WriteLine("\nPress ENTER to return to the menu");
+                        Console.ReadLine();
+                    }
+                }
+            }
+        }
+
+        internal static void ShowGradesSetLastMonth()
+        {
+
+            DateTime lastMonth = DateTime.Now.AddMonths(-1);
+
+            string queryString = @"
+                            SELECT  
+                            FirstName,
+                            LastName,
+                            Courses.CourseName,
+                            Grades.Grade,
+                            Grades.GradeDate
+                            FROM Students
+                            JOIN Grades ON Students.StudentID = Grades.StudentID_FK
+                            JOIN Courses ON Courses.CourseID = Grades.CourseID_FK
+                            WHERE Grades.GradeDate >= @LastMonth";
+
+            string connectionString = @"Data Source=(localdb)\.;Initial Catalog=SchoolDB;Integrated Security=True";
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                Console.Clear();
+                Console.WriteLine("\t--- GRADES SET LAST MONTH ---\n");
+                connection.Open();
+                using (SqlCommand command = new SqlCommand($"{queryString}", connection))
+                {
+                    command.Parameters.AddWithValue("@LastMonth", lastMonth);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            string firstName = reader["FirstName"].ToString();
+                            string lastName = reader["LastName"].ToString();
+                            string courseName = reader["CourseName"].ToString();
+                            string grade = reader["Grade"].ToString();
+
+                            Console.WriteLine($"Name: {firstName} {lastName} | Course: {courseName}  Grade: {grade}");
                         }
                         Console.WriteLine("\nPress ENTER to return to menu");
                         Console.ReadLine();
