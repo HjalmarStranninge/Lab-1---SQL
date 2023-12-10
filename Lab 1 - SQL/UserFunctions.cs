@@ -233,6 +233,7 @@ namespace Lab_1___SQL
             }
         }
 
+        // Shows average grade for a specific course.
         internal static void ShowAverageGrade()
         {
             string queryString = $"SELECT CourseName, CourseID FROM Courses";
@@ -301,9 +302,11 @@ namespace Lab_1___SQL
             }
         }
 
+        // Shows all grades set last month.
         internal static void ShowGradesSetLastMonth()
         {
 
+            //Variable for sorting out the grades set withing 30 days.
             DateTime lastMonth = DateTime.Now.AddMonths(-1);
 
             string queryString = @"
